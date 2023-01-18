@@ -4,17 +4,28 @@ import colorsys
 class Color:
     """
     Create by passing in r,g,b values in [0,255]
-    All values converted to and saved in [0,1]
+    rbg values preserved (rounded) in [0,255] This might change eventually if more math is done in [0,1] space?
+    Rounding to prevent float .000001 and .99999 error propagation, and ensure consistency
+
+    hls values generated and saved as floats in [0,1]
     """
 
     def __init__(self, r, g, b):
-        self.red = r / 255
-        self.green = g / 255
-        self.blue = b / 255
+        """
+        :param r,g,b: int in [0,255]
+        """
+        self.red = round(r)
+        self.green = round(g)
+        self.blue = round(b)
         self.hue, self.luminosity, self.saturation = colorsys.rgb_to_hls(r, g, b)
 
     @staticmethod
     def hex_to_rgb(hex_code):
+        """
+        helper function to prep input to constructor
+        :param hex_code: ex: "123456"
+        :return: ex: 12, 34, 56
+        """
         r = int(hex_code[:2], 16)
         g = int(hex_code[2:4], 16)
         b = int(hex_code[4:], 16)
@@ -45,13 +56,8 @@ class Color:
         # Print HLS
         # return f"{self.hue}{self.luminosity}{self.saturation}"
 
-        # Prep rbg methods
-        r = int(self.red * 255)
-        g = int(self.green * 255)
-        b = int(self.blue * 255)
-
         # Print HEX
-        return f"{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}"
+        return f"{hex(self.red)[2:]}{hex(self.green)[2:]}{hex(self.blue)[2:]}"
 
         # Print RBG
         # return f"{r}|{g}|{b}"
@@ -66,6 +72,5 @@ in_color = "123456"
 in_red, in_green, in_blue = Color.hex_to_rgb(in_color)
 
 base = Color(in_red, in_green, in_blue)
-scheme = base.get_reg_scheme(3)
-
+scheme = base.get_reg_scheme(4)
 print(*scheme, sep="\n")
