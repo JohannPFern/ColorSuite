@@ -24,7 +24,7 @@ class Color:
         """
         helper function to prep input to constructor
         :param hex_code: ex: "123456"
-        :return: ex: 12, 34, 56
+        :return: ex: 18, 52, 86
         """
         r = int(hex_code[:2], 16)
         g = int(hex_code[2:4], 16)
