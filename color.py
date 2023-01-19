@@ -77,7 +77,7 @@ class Color:
             hue_up -= 1
         r, g, b = colorsys.hls_to_rgb(hue_up, self._luminosity, self._saturation)
         colors.append(Color(r, g, b))
-        hue_down = self._hue = shift
+        hue_down = self._hue - shift
         if hue_down < 0:
             hue_up += 1
         r, g, b = colorsys.hls_to_rgb(hue_down, self._luminosity, self._saturation)
