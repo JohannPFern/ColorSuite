@@ -62,6 +62,28 @@ class Color:
         """
         return self.get_reg_scheme(2)[0]
 
+    def get_analog(self, degree=30):
+        """
+        Get colors flanking self, at a specified number of degrees of hue change, with same S & L
+
+
+        :param degree: how far the flanking colors are from self... default semi-arbitrarily chosen
+        :return: a list of 2 colors
+        """
+        colors = []
+        shift = degree / 360
+        hue_up = self._hue + shift
+        if hue_up > 1:
+            hue_up -= 1
+        r, g, b = colorsys.hls_to_rgb(hue_up, self._luminosity, self._saturation)
+        colors.append(Color(r, g, b))
+        hue_down = self._hue = shift
+        if hue_down < 0:
+            hue_up += 1
+        r, g, b = colorsys.hls_to_rgb(hue_down, self._luminosity, self._saturation)
+        colors.append(Color(r, g, b))
+        return colors
+
     def get_accent(self):
         """
         Obviously the implementation is not final
@@ -79,10 +101,10 @@ class Color:
         # return f"{self.hue}{self.luminosity}{self.saturation}"
 
         # Print HEX
-        return f"{hex(self._red)[2:]}{hex(self._green)[2:]}{hex(self._blue)[2:]}"
+        # return f"{hex(self._red)[2:]}{hex(self._green)[2:]}{hex(self._blue)[2:]}"
 
         # Print RBG
-        # return f"{r}|{g}|{b}"
+        return f"{self._red}|{self._green}|{self._blue}"
 
     def __repr__(self):
         """So printing lists is easier"""
@@ -95,13 +117,6 @@ if __name__ == "__main__":
     in_red, in_green, in_blue = Color.hex_to_rgb(in_color)
 
     base = Color(in_red, in_green, in_blue)
-    accents = base.get_accent()
+    scheme = base.get_analog()
 
-    in_color2 = "654321"
-    in_red2, in_green2, in_blue2 = Color.hex_to_rgb(in_color2)
-
-    base2 = Color(in_red2, in_green2, in_blue2)
-    accents2 = base2.get_accent()
-
-    print(next(accents))
-    print(next(accents2))
+    print(*scheme, sep="\n")
