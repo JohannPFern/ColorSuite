@@ -4,32 +4,33 @@ import random
 
 class Color:
     """
-    RGB & HLS values generated and saved as floats in [0,1]
-    RBG natively int [0,255]
+    Saves HLS values of a color, and can generate other Color objects & representations
+    HLS values generated and saved as floats in [0,1]
     H natively [0,360], LS natively [0,100]
     """
 
-    def __init__(self, r, g, b):
+    def __init__(self, h, i, s):
         """
         :param r,g,b: int in [0,255]
         """
-        self._red = r
-        self._green = g
-        self._blue = b
-        self._hue, self._lightness, self._saturation = colorsys.rgb_to_hls(r, g, b)
+        self._hue = h
+        self._lightness = i
+        self._saturation = s
 
     @staticmethod
-    def hex_to_rgb(hex_code):
+    def hex_to_input(hex_code):
         """
         helper function to prep input to constructor
 
-        :param hex_code: ex: "123456"
-        :return: ex: 18, 52, 86
+        :param hex_code: color hex, with or without leading # ex: "123456" or "#123456"
+        :return: ex: 210, 20, 65
         """
+        hex_code = hex_code.lstrip("#")
         r = int(hex_code[:2], 16) / 255
         g = int(hex_code[2:4], 16) / 255
         b = int(hex_code[4:], 16) / 255
-        return r, g, b
+        h, l, s = colorsys.rgb_to_hls(r, g, b)
+        return h, l, s
 
     def get_reg_scheme(self, n):
         """
@@ -47,8 +48,7 @@ class Color:
             new_hue += 1 / n
             if new_hue > 1:
                 new_hue -= 1
-            r, g, b = colorsys.hls_to_rgb(new_hue, self._lightness, self._saturation)
-            colors.append(Color(r, g, b))
+            colors.append(Color(new_hue, self._lightness, self._saturation))
         return colors
 
     def get_complement(self):
@@ -60,11 +60,12 @@ class Color:
         """
         return self.get_reg_scheme(2)[0]
 
-    def get_analog(self, degree=30):
+    def get_analog_scheme(self, degree=30):
         """
         Get colors flanking self, at a specified number of degrees of hue change, with same S & L
+        ... default semi-arbitrarily chosen
 
-        :param degree: how far the flanking colors are from self... default semi-arbitrarily chosen
+        :param degree: angular distance between base and analogs
         :return: a list of 2 colors
         """
         colors = []
@@ -72,13 +73,11 @@ class Color:
         hue_up = self._hue + shift
         if hue_up > 1:
             hue_up -= 1
-        r, g, b = colorsys.hls_to_rgb(hue_up, self._lightness, self._saturation)
-        colors.append(Color(r, g, b))
+        colors.append(Color(hue_up, self._lightness, self._saturation))
         hue_down = self._hue - shift
         if hue_down < 0:
             hue_up += 1
-        r, g, b = colorsys.hls_to_rgb(hue_down, self._lightness, self._saturation)
-        colors.append(Color(r, g, b))
+        colors.append(Color(hue_down, self._lightness, self._saturation))
         return colors
 
     def get_accent(self):
@@ -92,20 +91,32 @@ class Color:
         while 1:
             yield comp
 
-    def __str__(self):
-        """Uncomment desired print option"""
-        # Print HLS
-        # return f"{round(self._hue*360)}|{round(self._lightness*100)}|{round(self._saturation*100)}"
+    def get_rbg(self):
+        """
+        :return: tuple of r,g,b values in decimal [0,255]
+        """
+        r, g, b = colorsys.hls_to_rgb(self._hue, self._lightness, self._saturation)
+        r = round(r * 255)
+        g = round(g * 255)
+        b = round(b * 255)
+        return r, g, b
 
-        # Print RBG
-        # return f"{round(self._red*255)}|{round(self._green*255)}|{round(self._blue*255)}"
-
-        # Print HEX
+    def get_hex(self):
+        """
+        :return: tuple of r,g,b values in hex format
+        """
+        r, g, b = self.get_rbg()
         # Convert to HEX, remove 0x, and if necessary add leading 0
-        r = hex(round(self._red * 255))[2:].zfill(2)
-        g = hex(round(self._green * 255))[2:].zfill(2)
-        b = hex(round(self._blue * 255))[2:].zfill(2)
-        return f"{r}{g}{b}"
+        r = hex(r)[2:].zfill(2)
+        g = hex(g)[2:].zfill(2)
+        b = hex(b)[2:].zfill(2)
+        return r, g, b
+
+    def __str__(self):
+        """
+        :return: HLS values '|' separated as a string
+        """
+        return f"{round(self._hue*360)}|{round(self._lightness*100)}|{round(self._saturation*100)}"
 
     def __repr__(self):
         """So printing lists is easier"""
@@ -114,11 +125,12 @@ class Color:
 
 if __name__ == "__main__":
     # Test Block
-    in_color = "0a0a00"
-    in_red, in_green, in_blue = Color.hex_to_rgb(in_color)
+    in_color = "#123456"
+    in_hue, in_lightness, in_saturation = Color.hex_to_input(in_color)
 
-    base = Color(in_red, in_green, in_blue)
-    scheme = base.get_analog(15)
+    base = Color(in_hue, in_lightness, in_saturation)
+    scheme = base.get_analog_scheme(15)
 
-    print(base)
-    print(*scheme, sep="\n")
+    print(*base.get_hex())
+    for color in scheme:
+        print(*color.get_hex())
