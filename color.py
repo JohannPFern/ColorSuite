@@ -4,21 +4,19 @@ import random
 
 class Color:
     """
-    Create by passing in r,g,b values in [0,255]
-    RGB values (int rounded) in [0,255] This might change eventually if more math is done in [0,1] space?
-    Rounding to prevent float .000001 and .99999 error propagation, and ensure consistency
-
-    HLS values generated and saved as floats in [0,1]
+    RGB & HLS values generated and saved as floats in [0,1]
+    RBG natively int [0,255]
+    H natively [0,360], LS natively [0,100]
     """
 
     def __init__(self, r, g, b):
         """
         :param r,g,b: int in [0,255]
         """
-        self._red = round(r)
-        self._green = round(g)
-        self._blue = round(b)
-        self._hue, self._luminosity, self._saturation = colorsys.rgb_to_hls(r, g, b)
+        self._red = r
+        self._green = g
+        self._blue = b
+        self._hue, self._lightness, self._saturation = colorsys.rgb_to_hls(r, g, b)
 
     @staticmethod
     def hex_to_rgb(hex_code):
@@ -28,9 +26,9 @@ class Color:
         :param hex_code: ex: "123456"
         :return: ex: 18, 52, 86
         """
-        r = int(hex_code[:2], 16)
-        g = int(hex_code[2:4], 16)
-        b = int(hex_code[4:], 16)
+        r = int(hex_code[:2], 16) / 255
+        g = int(hex_code[2:4], 16) / 255
+        b = int(hex_code[4:], 16) / 255
         return r, g, b
 
     def get_reg_scheme(self, n):
@@ -49,7 +47,7 @@ class Color:
             new_hue += 1 / n
             if new_hue > 1:
                 new_hue -= 1
-            r, g, b = colorsys.hls_to_rgb(new_hue, self._luminosity, self._saturation)
+            r, g, b = colorsys.hls_to_rgb(new_hue, self._lightness, self._saturation)
             colors.append(Color(r, g, b))
         return colors
 
@@ -66,7 +64,6 @@ class Color:
         """
         Get colors flanking self, at a specified number of degrees of hue change, with same S & L
 
-
         :param degree: how far the flanking colors are from self... default semi-arbitrarily chosen
         :return: a list of 2 colors
         """
@@ -75,12 +72,12 @@ class Color:
         hue_up = self._hue + shift
         if hue_up > 1:
             hue_up -= 1
-        r, g, b = colorsys.hls_to_rgb(hue_up, self._luminosity, self._saturation)
+        r, g, b = colorsys.hls_to_rgb(hue_up, self._lightness, self._saturation)
         colors.append(Color(r, g, b))
         hue_down = self._hue - shift
         if hue_down < 0:
             hue_up += 1
-        r, g, b = colorsys.hls_to_rgb(hue_down, self._luminosity, self._saturation)
+        r, g, b = colorsys.hls_to_rgb(hue_down, self._lightness, self._saturation)
         colors.append(Color(r, g, b))
         return colors
 
@@ -98,13 +95,24 @@ class Color:
     def __str__(self):
         """Uncomment desired print option"""
         # Print HLS
-        # return f"{self.hue}{self.luminosity}{self.saturation}"
-
-        # Print HEX
-        # return f"{hex(self._red)[2:]}{hex(self._green)[2:]}{hex(self._blue)[2:]}"
+        return f"{round(self._hue*360)}|{round(self._lightness*100)}|{round(self._saturation*100)}"
 
         # Print RBG
-        return f"{self._red}|{self._green}|{self._blue}"
+        # return f"{round(self._red*100)}|{round(self._green*100)}|{round(self._blue*100)}"
+
+        # Print HEX
+        # Convert to HEX and remove 0x
+        r = hex(round(self._red*100))[2:]
+        g = hex(round(self._green*100))[2:]
+        b = hex(round(self._blue*100))[2:]
+        # If result was one digit add leading 0
+        if len(r) == 1:
+            r = "0" + r
+        if len(g) == 1:
+            g = "0" + g
+        if len(b) == 1:
+            b = "0" + b
+        return f"{r}{g}{b}"
 
     def __repr__(self):
         """So printing lists is easier"""
@@ -113,10 +121,11 @@ class Color:
 
 if __name__ == "__main__":
     # Test Block
-    in_color = "123456"
+    in_color = "4C1036"
     in_red, in_green, in_blue = Color.hex_to_rgb(in_color)
 
     base = Color(in_red, in_green, in_blue)
-    scheme = base.get_analog()
+    scheme = base.get_analog(15)
 
+    print(base)
     print(*scheme, sep="\n")
