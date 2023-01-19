@@ -98,7 +98,7 @@ class Color:
         # return f"{round(self._hue*360)}|{round(self._lightness*100)}|{round(self._saturation*100)}"
 
         # Print RBG
-        # return f"{round(self._red*100)}|{round(self._green*100)}|{round(self._blue*100)}"
+        # return f"{round(self._red*255)}|{round(self._green*255)}|{round(self._blue*255)}"
 
         # Print HEX
         # Convert to HEX, remove 0x, and if necessary add leading 0
