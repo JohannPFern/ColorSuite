@@ -95,23 +95,16 @@ class Color:
     def __str__(self):
         """Uncomment desired print option"""
         # Print HLS
-        return f"{round(self._hue*360)}|{round(self._lightness*100)}|{round(self._saturation*100)}"
+        # return f"{round(self._hue*360)}|{round(self._lightness*100)}|{round(self._saturation*100)}"
 
         # Print RBG
         # return f"{round(self._red*100)}|{round(self._green*100)}|{round(self._blue*100)}"
 
         # Print HEX
-        # Convert to HEX and remove 0x
-        r = hex(round(self._red*100))[2:]
-        g = hex(round(self._green*100))[2:]
-        b = hex(round(self._blue*100))[2:]
-        # If result was one digit add leading 0
-        if len(r) == 1:
-            r = "0" + r
-        if len(g) == 1:
-            g = "0" + g
-        if len(b) == 1:
-            b = "0" + b
+        # Convert to HEX, remove 0x, and if necessary add leading 0
+        r = hex(round(self._red * 255))[2:].zfill(2)
+        g = hex(round(self._green * 255))[2:].zfill(2)
+        b = hex(round(self._blue * 255))[2:].zfill(2)
         return f"{r}{g}{b}"
 
     def __repr__(self):
@@ -121,7 +114,7 @@ class Color:
 
 if __name__ == "__main__":
     # Test Block
-    in_color = "4C1036"
+    in_color = "0a0a00"
     in_red, in_green, in_blue = Color.hex_to_rgb(in_color)
 
     base = Color(in_red, in_green, in_blue)
