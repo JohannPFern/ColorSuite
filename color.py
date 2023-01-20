@@ -17,10 +17,23 @@ class Color:
         self._lightness = i
         self._saturation = s
 
+    @classmethod
+    def from_hex(cls, hex_code):
+        """
+        Generate a Color object from a hex code
+
+        :param hex_code: color hex, with or without leading # ex: "123456" or "#123456"
+        :return: Color
+        """
+
+        h, i, s = Color.hex_to_hls(hex_code)
+        return cls(h, i, s)
+
     @staticmethod
-    def hex_to_input(hex_code):
+    def hex_to_hls(hex_code):
         """
         helper function to prep input to constructor
+        This could be moved into from_hex? Leaving it encapsulated for now incase there's another use case?
 
         :param hex_code: color hex, with or without leading # ex: "123456" or "#123456"
         :return: ex: 210, 20, 65
@@ -29,8 +42,8 @@ class Color:
         r = int(hex_code[:2], 16) / 255
         g = int(hex_code[2:4], 16) / 255
         b = int(hex_code[4:], 16) / 255
-        h, l, s = colorsys.rgb_to_hls(r, g, b)
-        return h, l, s
+        h, i, s = colorsys.rgb_to_hls(r, g, b)
+        return h, i, s
 
     def get_reg_scheme(self, n):
         """
@@ -63,7 +76,7 @@ class Color:
     def get_analog_scheme(self, degree=30):
         """
         Get colors flanking self, at a specified number of degrees of hue change, with same S & L
-        ... default semi-arbitrarily chosen
+        ... default semi-arbitrarily chosen, it looks ok but maybe should be modified?
 
         :param degree: angular distance between base and analogs
         :return: a list of 2 colors
@@ -91,7 +104,7 @@ class Color:
         while 1:
             yield comp
 
-    def get_rbg(self):
+    def get_rgb(self):
         """
         :return: tuple of r,g,b values in decimal [0,255]
         """
@@ -103,14 +116,14 @@ class Color:
 
     def get_hex(self):
         """
-        :return: tuple of r,g,b values in hex format
+        :return: string representing color in hex format (rgb)
         """
-        r, g, b = self.get_rbg()
+        r, g, b = self.get_rgb()
         # Convert to HEX, remove 0x, and if necessary add leading 0
         r = hex(r)[2:].zfill(2)
         g = hex(g)[2:].zfill(2)
         b = hex(b)[2:].zfill(2)
-        return r, g, b
+        return f"#{r}{g}{b}"
 
     def __str__(self):
         """
@@ -126,11 +139,10 @@ class Color:
 if __name__ == "__main__":
     # Test Block
     in_color = "#123456"
-    in_hue, in_lightness, in_saturation = Color.hex_to_input(in_color)
 
-    base = Color(in_hue, in_lightness, in_saturation)
+    base = Color.from_hex(in_color)
     scheme = base.get_analog_scheme(15)
 
-    print(*base.get_hex())
+    print(*base.get_rgb(), sep="")
     for color in scheme:
-        print(*color.get_hex())
+        print(color.get_hex())
