@@ -11,13 +11,15 @@ class Color:
     Colors might be immutable, "changes" generate new Colors which are returned?
     """
 
+    _BLUE_HUE = 235 / 360
+
     def __init__(self, h, i, s):
         """
         :param h,i,s: float in [0,1]
         """
-        self.hue = h
-        self.lightness = i
-        self.saturation = s
+        self._hue = h
+        self._lightness = i
+        self._saturation = s
 
     @classmethod
     def from_hex(cls, hex_code):
@@ -35,6 +37,15 @@ class Color:
         h, i, s = colorsys.rgb_to_hls(r, g, b)
         return cls(h, i, s)
 
+    @staticmethod
+    def hue_addition(hue, shift):
+        new_hue = hue + shift
+        if new_hue > 1:
+            return new_hue - 1
+        if new_hue < 0:
+            return new_hue + 1
+        return new_hue
+
     def gen_reg_scheme(self, n):
         """
         Produce a scheme of n colors, including the base, which are evenly distributed around the hue wheel
@@ -46,13 +57,11 @@ class Color:
         :return: list of colors
         """
         colors = [self]
-        new_hue = self.hue
+        new_hue = self._hue
         hue_shift = 1 / n
         for i in range(n - 1):
-            new_hue += hue_shift
-            if new_hue > 1:
-                new_hue -= 1
-            colors.append(Color(new_hue, self.lightness, self.saturation))
+            new_hue = Color.hue_addition(new_hue, hue_shift)
+            colors.append(Color(new_hue, self._lightness, self._saturation))
         new_scheme = Scheme(colors)
         return new_scheme
 
@@ -63,8 +72,8 @@ class Color:
 
         :return: the color with equal S & L, and opposite H
         """
-        new_hue = self.hue + 0.5 if self.hue < 0.5 else self.hue - 0.5
-        return Color(new_hue, self.lightness, self.saturation)
+        new_hue = self._hue + 0.5 if self._hue < 0.5 else self._hue - 0.5
+        return Color(new_hue, self._lightness, self._saturation)
 
     def gen_analog_scheme(self, degree=30):
         """
@@ -76,33 +85,30 @@ class Color:
         """
         colors = [self]
         shift = degree / 360
-        hue_up = self.hue + shift
-        if hue_up > 1:
-            hue_up -= 1
-        colors.append(Color(hue_up, self.lightness, self.saturation))
-        hue_down = self.hue - shift
-        if hue_down < 0:
-            hue_up += 1
-        colors.append(Color(hue_down, self.lightness, self.saturation))
+
+        new_hue = Color.hue_addition(self._hue, shift)
+        colors.append(Color(new_hue, self._lightness, self._saturation))
+
+        new_hue = Color.hue_addition(self._hue, -shift)
+        colors.append(Color(new_hue, self._lightness, self._saturation))
+
         new_scheme = Scheme(colors)
         return new_scheme
 
-    def get_accent(self):
-        """
-        Obviously the implementation is not final
-        This placeholder shows how generators will be implemented to produce colors in particular patterns
+    def get_hue(self):
+        return self._hue
 
-        :yield: a new Color which might be a decent accent
-        """
-        comp = self.get_complement()
-        while 1:
-            yield comp
+    def get_lightness(self):
+        return self._lightness
+
+    def get_saturation(self):
+        return self._saturation
 
     def get_rgb(self):
         """
         :return: tuple of r,g,b values in decimal [0,255]
         """
-        r, g, b = colorsys.hls_to_rgb(self.hue, self.lightness, self.saturation)
+        r, g, b = colorsys.hls_to_rgb(self._hue, self._lightness, self._saturation)
         r = round(r * 255)
         g = round(g * 255)
         b = round(b * 255)
@@ -123,9 +129,7 @@ class Color:
         """
         :return: HLS values '|' separated as a string
         """
-        return (
-            f"{round(self.hue * 360)}|{round(self.lightness * 100)}|{round(self.saturation * 100)}"
-        )
+        return f"{round(self._hue * 360)}|{round(self._lightness * 100)}|{round(self._saturation * 100)}"
 
     def __repr__(self):
         """So printing lists is easier"""
@@ -135,6 +139,8 @@ class Color:
 class Scheme:
     """
     A collection of Colors
+
+    Schemes are mutable: colors can be added and removed
     """
 
     def __init__(self, initial_colors: list[Color]):
@@ -142,29 +148,37 @@ class Scheme:
         NON-FINAL IMPLEMENTATION
         Takes a list of Colors, the first is assumed to be the central color
 
-        :param initial_colors: non-empty list of colors beginning with the primary color
+        :param initial_colors: non-empty list of colors beginning with the base color
         """
-        self.colors = initial_colors
-        self._base_saturation = initial_colors[0].saturation
-        self._base_lightness = initial_colors[0].lightness
+        self._base_colors = initial_colors
+        self._base_saturation = initial_colors[0].get_saturation()
+        self._base_lightness = initial_colors[0].get_lightness()
 
-    def get_accent(self):
+        self._accent_colors = []
+
+    def suggest_accent(self):
         """
         Obviously the implementation is not final
         This placeholder shows how generators will be implemented to produce relevant colors
 
         :yield: a new Color which might be a decent accent
         """
-        comp = self.colors[0].get_complement()
+        # add check that it's not repeated
+
+        comp = self._base_colors[0].get_complement()
         while 1:
             yield comp
+
+    def add_accent(self, new_accent):
+        # add check that it's not repeated
+        self._accent_colors.append(new_accent)
 
     def get_rgb(self):
         """
         :return: list of tuples of r,g,b values in decimal [0,255]
         """
         values = []
-        for single_color in self.colors:
+        for single_color in self._base_colors:
             values.append(single_color.get_rgb())
         return values
 
@@ -173,7 +187,7 @@ class Scheme:
         :return: list of strings representing each color in hex format (rgb)
         """
         values = []
-        for single_color in self.colors:
+        for single_color in self._base_colors:
             values.append(single_color.get_hex())
         return values
 
@@ -182,7 +196,7 @@ class Scheme:
         :return: HLS values ('|' separated) for each color ("\n" separated) as a string
         """
         values = ""
-        for single_color in self.colors:
+        for single_color in self._base_colors:
             values = f"{values}{single_color}\n"
         return values
 
@@ -191,13 +205,28 @@ class Scheme:
         return str(self)
 
 
-if __name__ == "__main__":
-    # Test Block
-    in_color = "#20A39E"
+def _test_bench():
+    """
+    Dedicating testing function to avoid shadowing variables
+    """
+    in_color = "#A6B1E1"
 
     base = Color.from_hex(in_color)
+    comp = base.get_complement()
     scheme = base.gen_analog_scheme()
 
-    print(scheme)
-    print(scheme.get_rgb())
-    print(scheme.get_hex())
+    # print(comp.get_hex())
+    print(*scheme.get_hex())
+
+
+def _color_checker():
+    in_color = "#2B2D42"
+
+    base = Color.from_hex(in_color)
+
+    print(base)
+
+
+if __name__ == "__main__":
+    _test_bench()
+    # _color_checker()
