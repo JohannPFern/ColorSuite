@@ -1,4 +1,5 @@
 import colorsys
+import math
 import random
 
 
@@ -7,11 +8,11 @@ class Color:
     Saves HLS values of a color, and can generate other Color objects & representations
     HLS values generated and saved as floats in [0,1]
     H natively [0,360], LS natively [0,100]
-
-    Colors might be immutable, "changes" generate new Colors which are returned?
     """
 
     _BLUE_HUE = 235 / 360
+    _STD_LIGHTNESS = 0.5
+    _STD_SATURATION = 0.5
 
     def __init__(self, h, i, s):
         """
@@ -36,6 +37,64 @@ class Color:
         b = int(hex_code[4:], 16) / 255
         h, i, s = colorsys.rgb_to_hls(r, g, b)
         return cls(h, i, s)
+
+    @classmethod
+    def from_hue(cls, hue):
+        """
+        Generate a color at std
+        :param hue: hue in [0,1]
+        :return: Color with hue at standard saturation and lightness
+        """
+        return Color(hue, cls._STD_LIGHTNESS, cls._STD_SATURATION)
+
+    def new_logistic_modded(self, lightness_shift_factor=0, saturation_shift_factor=0):
+        """
+        Return a new color with the same hue as self, but with lightness and saturation shifted
+        The shifts are smaller as maximum and minimum values are approached
+
+        SUPER SUPER BROKEN DO NOT USE!!!!!!!!!!!!!!!!!!!!
+
+        :param lightness_shift_factor: [-1,1] 0 is no change -1 goes to min light, 1 to max
+        :param saturation_shift_factor: [-1,1] 0 is no change -1 goes to completely unsaturated, 1 to max
+        :return:
+        """
+        std_dev = 0.5
+        mean = 0.5
+
+        if lightness_shift_factor:
+            new_lightness = (
+                self._lightness + 1 / math.fabs(self._lightness - 0.5) * lightness_shift_factor
+            )
+        else:
+            new_lightness = self._lightness
+
+        if saturation_shift_factor:
+            new_lightness = (
+                self._lightness + math.fabs(self._lightness - 0.5) * lightness_shift_factor
+            )
+        else:
+            new_saturation = self._saturation
+        return Color(self._hue, new_lightness, new_saturation)
+
+    def new_linear_modded(self, lightness_shift_factor=0, saturation_shift_factor=0):
+        """
+        Return a new color with the same hue as self, but with lightness and saturation shifted
+
+        :param lightness_shift_factor: [-1,1]
+        :param saturation_shift_factor: [-1,1]
+        :return: Color
+        """
+        new_lightness = self._lightness + lightness_shift_factor
+        new_saturation = self._saturation + saturation_shift_factor
+        if new_lightness > 1:
+            new_lightness = 1
+        elif new_lightness < 0:
+            new_lightness = 0
+        if new_saturation > 1:
+            new_saturation = 1
+        elif new_saturation < 0:
+            new_saturation = 0
+        return Color(self._hue, new_lightness, new_saturation)
 
     @staticmethod
     def hue_addition(hue, shift):
@@ -95,6 +154,12 @@ class Color:
         new_scheme = Scheme(colors)
         return new_scheme
 
+    def calc_difference(self, other_color: "Color"):
+        hue_diff = self._hue - other_color._hue
+        light_diff = self._lightness - other_color._lightness
+        sat_diff = self._saturation - other_color._lightness
+        return hue_diff, light_diff, sat_diff
+
     def get_hue(self):
         return self._hue
 
@@ -143,7 +208,7 @@ class Scheme:
     Schemes are mutable: colors can be added and removed
     """
 
-    def __init__(self, initial_colors: list[Color]):
+    def __init__(self, initial_colors: list[Color], accent_colors=[]):
         """
         NON-FINAL IMPLEMENTATION
         Takes a list of Colors, the first is assumed to be the central color
@@ -154,7 +219,7 @@ class Scheme:
         self._base_saturation = initial_colors[0].get_saturation()
         self._base_lightness = initial_colors[0].get_lightness()
 
-        self._accent_colors = []
+        self._accent_colors = accent_colors
 
     def suggest_accent(self):
         """
@@ -203,30 +268,3 @@ class Scheme:
     def __repr__(self):
         """So printing lists is easier"""
         return str(self)
-
-
-def _test_bench():
-    """
-    Dedicating testing function to avoid shadowing variables
-    """
-    in_color = "#A6B1E1"
-
-    base = Color.from_hex(in_color)
-    comp = base.get_complement()
-    scheme = base.gen_analog_scheme()
-
-    # print(comp.get_hex())
-    print(*scheme.get_hex())
-
-
-def _color_checker():
-    in_color = "#2B2D42"
-
-    base = Color.from_hex(in_color)
-
-    print(base)
-
-
-if __name__ == "__main__":
-    _test_bench()
-    # _color_checker()
