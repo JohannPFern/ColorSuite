@@ -1,4 +1,8 @@
-from color import Color, Scheme
+import color
+import themes
+Color = color.Color
+Scheme = color.Scheme
+
 
 
 def _test_bench():
@@ -8,10 +12,15 @@ def _test_bench():
     in_hue = 250/360
     base = Color.from_hue(in_hue)
 
-    lighter = base.new_linear_modded(lightness_shift_factor=.2)
-    darker = base.new_linear_modded(lightness_shift_factor=-.2)
+    palette = Scheme([base])
 
-    print(lighter.get_rgb())
+    suggestion = palette.suggest_color()
+    print(suggestion.get_hex())
+
+    palette.add_color(suggestion)
+
+    print(palette.get_hex())
+
 
 
 def _color_checker():
@@ -21,9 +30,9 @@ def _color_checker():
     scheme = base.gen_analog_scheme()
 
     # print(comp.get_hex())
-    print(scheme.get_hex())
+    print(scheme)
 
 
 if __name__ == "__main__":
     _test_bench()
-    _color_checker()
+    #_color_checker()

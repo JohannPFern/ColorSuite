@@ -1,6 +1,6 @@
 import colorsys
 import random as rand
-from theme import Theme
+import abc
 
 
 class Color:
@@ -76,7 +76,7 @@ class Color:
             return new_hue + 1
         return new_hue
 
-    def gen_reg_scheme(self, n):
+    def gen_reg_colors(self, n):
         """
         Produce a scheme of n colors, including the base, which are evenly distributed around the hue wheel
         The points form a regular shape (or line) hence the name
@@ -86,14 +86,13 @@ class Color:
         :param n: number of colors in scheme
         :return: list of colors
         """
-        colors = [self]
+        colors = []
         new_hue = self._hue
         hue_shift = 1 / n
         for i in range(n - 1):
             new_hue = Color.hue_addition(new_hue, hue_shift)
             colors.append(Color(new_hue, self._lightness, self._saturation))
-        new_scheme = Scheme(colors)
-        return new_scheme
+        return colors
 
     def get_complement(self):
         """
@@ -105,7 +104,7 @@ class Color:
         new_hue = self._hue + 0.5 if self._hue < 0.5 else self._hue - 0.5
         return Color(new_hue, self._lightness, self._saturation)
 
-    def gen_analog_scheme(self, degree=30):
+    def gen_analog_colors(self, degree=30):
         """
         Get colors flanking self, at a specified number of degrees of hue change, with same S & L
         ... default semi-arbitrarily chosen, it looks ok but maybe should be modified?
@@ -113,7 +112,7 @@ class Color:
         :param degree: angular distance between base and analogs
         :return: a list of 2 colors
         """
-        colors = [self]
+        colors = []
         shift = degree / 360
 
         new_hue = Color.hue_addition(self._hue, shift)
@@ -122,8 +121,7 @@ class Color:
         new_hue = Color.hue_addition(self._hue, -shift)
         colors.append(Color(new_hue, self._lightness, self._saturation))
 
-        new_scheme = Scheme(colors)
-        return new_scheme
+        return colors
 
     def calc_difference(self, other_color: "Color"):
         hue_diff = self._hue - other_color._hue
@@ -172,6 +170,39 @@ class Color:
         return str(self)
 
 
+class Theme(metaclass=abc.ABCMeta):
+    """
+    Defines Common Rules for Themes so that they can be used polymorphically
+    """
+
+    @abc.abstractmethod
+    def generate_color(self, scheme):
+        """
+        Suggests an appropriate color for the in colors a scheme, with respect to this theme
+        :param scheme: The scheme to get colors (and base saturation and lightness) from
+        :return: A Color
+        """
+        pass
+
+    @abc.abstractmethod
+    def check_compliance(self, colors):
+        """
+        Find how well the given colors fit this theme
+        :param colors: list of colors to be examined
+        :return: [0,1] higher number, more satisfactory match
+        """
+        pass
+
+
+class Base(Theme):
+    def generate_color(self, scheme):
+        core = rand.choice(scheme.get_colors())
+        return rand.choice(core.gen_analog_colors())
+
+    def check_compliance(self, colors):
+        return 1
+
+
 class Scheme:
     """
     A collection of Colors
@@ -180,7 +211,7 @@ class Scheme:
     """
 
     _BASE_THRESHOLD = 0.7
-    _THRESHOLD_SHIFT = 0.05
+    _THRESHOLD_SHIFT = 0.01
 
     def __init__(self, initial_colors: list[Color]):
         """
@@ -193,7 +224,7 @@ class Scheme:
         self._base_saturation = initial_colors[0].get_saturation()
         self._base_lightness = initial_colors[0].get_lightness()
 
-        self._themes = []
+        self._themes = [Base()]
 
     def add_color(self, new_accent: Color):
         if new_accent in self._locked_colors:
@@ -211,29 +242,23 @@ class Scheme:
     def remove_theme(self, theme: Theme):
         self._themes.remove(theme)
 
-    def suggest_accent(self):
+    def suggest_color(self):
         """
-        Obviously the implementation is not final
-        This placeholder shows how generators will be implemented to produce relevant colors
-
-        :yield: a new Color which might be a decent accent
+        Suggest a color based on the colors currently present, which complies to some degree with each theme
         """
         threshold = self._BASE_THRESHOLD
         while 1:
             threshold -= self._THRESHOLD_SHIFT
             active_theme = rand.choice(self._themes)
-            suggestion = active_theme.suggest_color()
+            suggestion = active_theme.generate_color(self)
             proposition = self._locked_colors.copy().append(suggestion)
 
-            suggestion_pass = 1
-            for theme in self._themes:
-                if theme.check_compliance(proposition) < threshold:
-                    suggestion_pass = 0
-                    break
+            compliances = [theme.check_compliance(proposition) for theme in self._themes]
+            if min(compliances) > threshold:
+                return suggestion
 
-            if suggestion_pass:
-                break
-        yield suggestion
+    def get_colors(self):
+        return self._locked_colors
 
     def get_rgb(self):
         """
@@ -257,11 +282,12 @@ class Scheme:
         """
         :return: HLS values ('|' separated) for each color ("\n" separated) as a string
         """
-        values = ""
-        for single_color in self._locked_colors:
-            values = f"{values}{single_color}\n"
-        return values
+        strings = [str(single_color) for single_color in self._locked_colors]
+        return "\n".join(strings)
 
     def __repr__(self):
         """So printing lists is easier"""
         return str(self)
+
+    def __len__(self):
+        return len(self._locked_colors)
