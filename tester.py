@@ -26,4 +26,4 @@ def _color_checker():
 
 if __name__ == "__main__":
     _test_bench()
-    # _color_checker()
+    _color_checker()

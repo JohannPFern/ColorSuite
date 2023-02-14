@@ -1,6 +1,6 @@
 import colorsys
-import math
-import random
+import random as rand
+from theme import Theme
 
 
 class Color:
@@ -46,35 +46,6 @@ class Color:
         :return: Color with hue at standard saturation and lightness
         """
         return Color(hue, cls._STD_LIGHTNESS, cls._STD_SATURATION)
-
-    def new_logistic_modded(self, lightness_shift_factor=0, saturation_shift_factor=0):
-        """
-        Return a new color with the same hue as self, but with lightness and saturation shifted
-        The shifts are smaller as maximum and minimum values are approached
-
-        SUPER SUPER BROKEN DO NOT USE!!!!!!!!!!!!!!!!!!!!
-
-        :param lightness_shift_factor: [-1,1] 0 is no change -1 goes to min light, 1 to max
-        :param saturation_shift_factor: [-1,1] 0 is no change -1 goes to completely unsaturated, 1 to max
-        :return:
-        """
-        std_dev = 0.5
-        mean = 0.5
-
-        if lightness_shift_factor:
-            new_lightness = (
-                self._lightness + 1 / math.fabs(self._lightness - 0.5) * lightness_shift_factor
-            )
-        else:
-            new_lightness = self._lightness
-
-        if saturation_shift_factor:
-            new_lightness = (
-                self._lightness + math.fabs(self._lightness - 0.5) * lightness_shift_factor
-            )
-        else:
-            new_saturation = self._saturation
-        return Color(self._hue, new_lightness, new_saturation)
 
     def new_linear_modded(self, lightness_shift_factor=0, saturation_shift_factor=0):
         """
@@ -208,18 +179,37 @@ class Scheme:
     Schemes are mutable: colors can be added and removed
     """
 
-    def __init__(self, initial_colors: list[Color], accent_colors=[]):
+    _BASE_THRESHOLD = 0.7
+    _THRESHOLD_SHIFT = 0.05
+
+    def __init__(self, initial_colors: list[Color]):
         """
         NON-FINAL IMPLEMENTATION
         Takes a list of Colors, the first is assumed to be the central color
 
         :param initial_colors: non-empty list of colors beginning with the base color
         """
-        self._base_colors = initial_colors
+        self._locked_colors = initial_colors
         self._base_saturation = initial_colors[0].get_saturation()
         self._base_lightness = initial_colors[0].get_lightness()
 
-        self._accent_colors = accent_colors
+        self._themes = []
+
+    def add_color(self, new_accent: Color):
+        if new_accent in self._locked_colors:
+            return
+        self._locked_colors.append(new_accent)
+
+    def remove_color(self, accent: Color):
+        self._locked_colors.remove(accent)
+
+    def add_theme(self, new_theme: Theme):
+        if new_theme in self._themes:
+            return
+        self._themes.append(new_theme)
+
+    def remove_theme(self, theme: Theme):
+        self._themes.remove(theme)
 
     def suggest_accent(self):
         """
@@ -228,22 +218,29 @@ class Scheme:
 
         :yield: a new Color which might be a decent accent
         """
-        # add check that it's not repeated
-
-        comp = self._base_colors[0].get_complement()
+        threshold = self._BASE_THRESHOLD
         while 1:
-            yield comp
+            threshold -= self._THRESHOLD_SHIFT
+            active_theme = rand.choice(self._themes)
+            suggestion = active_theme.suggest_color()
+            proposition = self._locked_colors.copy().append(suggestion)
 
-    def add_accent(self, new_accent):
-        # add check that it's not repeated
-        self._accent_colors.append(new_accent)
+            suggestion_pass = 1
+            for theme in self._themes:
+                if theme.check_compliance(proposition) < threshold:
+                    suggestion_pass = 0
+                    break
+
+            if suggestion_pass:
+                break
+        yield suggestion
 
     def get_rgb(self):
         """
         :return: list of tuples of r,g,b values in decimal [0,255]
         """
         values = []
-        for single_color in self._base_colors:
+        for single_color in self._locked_colors:
             values.append(single_color.get_rgb())
         return values
 
@@ -252,7 +249,7 @@ class Scheme:
         :return: list of strings representing each color in hex format (rgb)
         """
         values = []
-        for single_color in self._base_colors:
+        for single_color in self._locked_colors:
             values.append(single_color.get_hex())
         return values
 
@@ -261,7 +258,7 @@ class Scheme:
         :return: HLS values ('|' separated) for each color ("\n" separated) as a string
         """
         values = ""
-        for single_color in self._base_colors:
+        for single_color in self._locked_colors:
             values = f"{values}{single_color}\n"
         return values
 
