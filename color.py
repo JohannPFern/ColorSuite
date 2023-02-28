@@ -1,6 +1,6 @@
 import colorsys
 import random as rand
-import abc
+import math
 
 
 class Color:
@@ -124,9 +124,9 @@ class Color:
         return colors
 
     def calc_difference(self, other_color: "Color"):
-        hue_diff = self._hue - other_color._hue
-        light_diff = self._lightness - other_color._lightness
-        sat_diff = self._saturation - other_color._lightness
+        hue_diff = math.fabs(self._hue - other_color._hue)
+        light_diff = math.fabs(self._lightness - other_color._lightness)
+        sat_diff = math.fabs(self._saturation - other_color._lightness)
         return hue_diff, light_diff, sat_diff
 
     def get_hue(self):
@@ -170,39 +170,6 @@ class Color:
         return str(self)
 
 
-class Theme(metaclass=abc.ABCMeta):
-    """
-    Defines Common Rules for Themes so that they can be used polymorphically
-    """
-
-    @abc.abstractmethod
-    def generate_color(self, scheme):
-        """
-        Suggests an appropriate color for the in colors a scheme, with respect to this theme
-        :param scheme: The scheme to get colors (and base saturation and lightness) from
-        :return: A Color
-        """
-        pass
-
-    @abc.abstractmethod
-    def check_compliance(self, colors):
-        """
-        Find how well the given colors fit this theme
-        :param colors: list of colors to be examined
-        :return: [0,1] higher number, more satisfactory match
-        """
-        pass
-
-
-class Base(Theme):
-    def generate_color(self, scheme):
-        core = rand.choice(scheme.get_colors())
-        return rand.choice(core.gen_analog_colors())
-
-    def check_compliance(self, colors):
-        return 1
-
-
 class Scheme:
     """
     A collection of Colors
@@ -214,8 +181,9 @@ class Scheme:
     _THRESHOLD_SHIFT = 0.01
 
     def __init__(self, initial_colors: list[Color]):
+        from themes import Base
+
         """
-        NON-FINAL IMPLEMENTATION
         Takes a list of Colors, the first is assumed to be the central color
 
         :param initial_colors: non-empty list of colors beginning with the base color
@@ -226,6 +194,18 @@ class Scheme:
 
         self._themes = [Base()]
 
+    def set_bases(self, new_lightness, new_saturation):
+        self._base_lightness = new_lightness
+        self._base_saturation = new_saturation
+
+    @classmethod
+    def from_hue(cls, initial_hue):
+        core = Color.from_hue(initial_hue)
+        return cls([core])
+
+    def color_from_hue(self, hue):
+        return Color(hue, self._base_lightness, self._base_lightness)
+
     def add_color(self, new_accent: Color):
         if new_accent in self._locked_colors:
             return
@@ -234,12 +214,12 @@ class Scheme:
     def remove_color(self, accent: Color):
         self._locked_colors.remove(accent)
 
-    def add_theme(self, new_theme: Theme):
+    def add_theme(self, new_theme: "Theme"):
         if new_theme in self._themes:
             return
         self._themes.append(new_theme)
 
-    def remove_theme(self, theme: Theme):
+    def remove_theme(self, theme: "Theme"):
         self._themes.remove(theme)
 
     def suggest_color(self):
