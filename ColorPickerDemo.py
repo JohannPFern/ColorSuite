@@ -118,7 +118,7 @@ def schemaProvider(initHLS, schema, theme):
 
 def tintShade(initHLS, numColors):
   shift = 0.1
-  pallet = [initHLS]
+  pallet = []
   for x in range(numColors):
     #tint: shift to warm, decrease sat, increase light
     if initHLS[0] >= (25/360) and initHLS[0] <= (205/360):
@@ -147,10 +147,9 @@ root.title("Color Picker")
 root.geometry("1920x1080")  # set starting size of window
 
 ArrayOfAllFrames = []
-
 ArrayOfAllLockingVariables = []
-
 ArrayOfAllCanvas = []
+ArrayOfAllColors = []
 
 def choose_color():
 
@@ -160,8 +159,9 @@ def choose_color():
   #print(color_code)
 
   global schema
-
+ 
   chosenColorHLS = hex2hls(color_code[1])
+  print(color_code[1])
   b = schemaProvider((chosenColorHLS), schema.get(),theme.get())
 
   LockingVariableColorChoice = StringVar()
@@ -178,81 +178,102 @@ def choose_color():
 
   UserColorChoiceFrame = Frame()
   userChosenLabel = Label(UserColorChoiceFrame,text="User Chosen Color").pack()
-  userColorCanvas = Canvas(UserColorChoiceFrame,bg=color_code[1], width=1000, height=20).pack()
+  userColorCanvas = Canvas(UserColorChoiceFrame)
+  userColorCanvas.config(bg=color_code[1], width=1000, height=20)
+  userColorCanvas.pack()
   userChosenLabel2 = Label(UserColorChoiceFrame,text=str(color_code[1])).pack()
   check = Checkbutton(UserColorChoiceFrame, text='Lock Color', variable=LockingVariableColorChoice, onvalue='locked', offvalue='unlocked').pack()
   UserColorChoiceFrame.pack()
   ArrayOfAllFrames.append(UserColorChoiceFrame)
   ArrayOfAllLockingVariables.append(LockingVariableColorChoice)
   ArrayOfAllCanvas.append(userColorCanvas)
+  ArrayOfAllColors.append(color_code[1])
 
     #If suggesting 1 color
   if(schema.get() == "complimentary"):
     suggestedColorFrame1 = Frame()
     suggestedColorLabel1 = Label(suggestedColorFrame1,text="Suggested Color #1:").pack()
-    suggestedColorCanvas1 = Canvas(suggestedColorFrame1,bg=hls2hex(b[0]), width=1000, height=20).pack()
+    suggestedColorCanvas1 = Canvas(suggestedColorFrame1)
+    suggestedColorCanvas1.config(bg=hls2hex(b[0]), width=1000, height=20)
+    suggestedColorCanvas1.pack()
     suggestedColorLabel2 = Label(suggestedColorFrame1,text=str(hls2hex(b[0]))).pack()
     check = Checkbutton(suggestedColorFrame1, text='Lock Color', variable=LockingVariableSuggestion1, onvalue='locked', offvalue='unlocked').pack()
     suggestedColorFrame1.pack()
     ArrayOfAllFrames.append(suggestedColorFrame1)
     ArrayOfAllLockingVariables.append(LockingVariableSuggestion1)
     ArrayOfAllCanvas.append(suggestedColorCanvas1)
+    ArrayOfAllColors.append(hls2hex(b[0]))
     
 
     #If suggesting 2 colors
   if(schema.get() == "triadic" or schema.get() == "analog" or schema.get() == "split_complimentary"):
     suggestedColorFrame2 = Frame()
     suggestedColorLabel1 = Label(suggestedColorFrame2,text="Suggested Color #1:").pack()
-    suggestedColorCanvas1 = Canvas(suggestedColorFrame2,bg=hls2hex(b[0]), width=1000, height=20).pack()
+    suggestedColorCanvas1 = Canvas(suggestedColorFrame2)
+    suggestedColorCanvas1.config(bg=hls2hex(b[0]), width=1000, height=20)
+    suggestedColorCanvas1.pack()
     suggestedColorLabel2 = Label(suggestedColorFrame2,text=str(hls2hex(b[0]))).pack()
     check = Checkbutton(suggestedColorFrame2, text='Lock Color', variable=LockingVariableSuggestion1, onvalue='locked', offvalue='unlocked').pack()
     suggestedColorFrame2.pack()
     ArrayOfAllFrames.append(suggestedColorFrame2)
     ArrayOfAllLockingVariables.append(LockingVariableSuggestion1)
-    ArrayOfAllCanvas.append(suggestedColorCanvas1) 
+    ArrayOfAllCanvas.append(suggestedColorCanvas1)
+    ArrayOfAllColors.append(hls2hex(b[0]))
 
     
     suggestedColorFrame3 = Frame()
     suggestedColorLabel3 = Label(suggestedColorFrame3,text="Suggested Color #2:").pack()
-    suggestedColorCanvas2 = Canvas(suggestedColorFrame3,bg=hls2hex(b[1]), width=1000, height=20).pack()
+    suggestedColorCanvas2 = Canvas(suggestedColorFrame3)
+    suggestedColorCanvas2.config(bg=hls2hex(b[1]), width=1000, height=20)
+    suggestedColorCanvas2.pack()
     suggestedColorLabel4 = Label(suggestedColorFrame3,text=str(hls2hex(b[1]))).pack()
     check = Checkbutton(suggestedColorFrame3, text='Lock Color', variable=LockingVariableSuggestion2, onvalue='locked', offvalue='unlocked').pack()
     suggestedColorFrame3.pack()
     ArrayOfAllFrames.append(suggestedColorFrame3) 
     ArrayOfAllLockingVariables.append(LockingVariableSuggestion2)
-    ArrayOfAllCanvas.append(suggestedColorCanvas2) 
+    ArrayOfAllCanvas.append(suggestedColorCanvas2)
+    ArrayOfAllColors.append(hls2hex(b[1]))
 
     #If suggesting 3 colors
   if(schema.get() == "tetratic"):
     suggestedColorFrame4 = Frame()
     suggestedColorLabel1 = Label(suggestedColorFrame4,text="Suggested Color #1:").pack()
-    suggestedColorCanvas1 = Canvas(suggestedColorFrame4,bg=hls2hex(b[0]), width=1000, height=20).pack()
+    suggestedColorCanvas1 = Canvas(suggestedColorFrame4)
+    suggestedColorCanvas1.config(bg=hls2hex(b[0]), width=1000, height=20)
+    suggestedColorCanvas1.pack()
     suggestedColorLabel2 = Label(suggestedColorFrame4,text=str(hls2hex(b[0]))).pack()
     check = Checkbutton(suggestedColorFrame4, text='Lock Color', variable=LockingVariableSuggestion1, onvalue='locked', offvalue='unlocked').pack()
     suggestedColorFrame4.pack()
     ArrayOfAllFrames.append(suggestedColorFrame4)
     ArrayOfAllLockingVariables.append(LockingVariableSuggestion1)
     ArrayOfAllCanvas.append(suggestedColorCanvas1)
+    ArrayOfAllColors.append(hls2hex(b[0]))
     
     suggestedColorFrame5 = Frame()
     suggestedColorLabel3 = Label(suggestedColorFrame5,text="Suggested Color #2:").pack()
-    suggestedColorCanvas2 = Canvas(suggestedColorFrame5,bg=hls2hex(b[1]), width=1000, height=20).pack()
+    suggestedColorCanvas2 = Canvas(suggestedColorFrame5)
+    suggestedColorCanvas2.config(bg=hls2hex(b[1]), width=1000, height=20)
+    suggestedColorCanvas2.pack()
     suggestedColorLabel4 = Label(suggestedColorFrame5,text=str(hls2hex(b[1]))).pack()
     check = Checkbutton(suggestedColorFrame5, text='Lock Color', variable=LockingVariableSuggestion2, onvalue='locked', offvalue='unlocked').pack()
     suggestedColorFrame5.pack()
     ArrayOfAllFrames.append(suggestedColorFrame5)
     ArrayOfAllLockingVariables.append(LockingVariableSuggestion2)
     ArrayOfAllCanvas.append(suggestedColorCanvas2)
+    ArrayOfAllColors.append(hls2hex(b[1]))
 
     suggestedColorFrame6 = Frame()
     suggestedColorLabel5 = Label(suggestedColorFrame6,text="Suggested Color #3:").pack()
-    suggestedColorCanvas3 = Canvas(suggestedColorFrame6,bg=hls2hex(b[2]), width=1000, height=20).pack()
+    suggestedColorCanvas3 = Canvas(suggestedColorFrame6)
+    suggestedColorCanvas3.config(bg=hls2hex(b[2]), width=1000, height=20)
+    suggestedColorCanvas3.pack()
     suggestedColorLabel6 = Label(suggestedColorFrame6,text=str(hls2hex(b[2]))).pack()
     check = Checkbutton(suggestedColorFrame6, text='Lock Color', variable=LockingVariableSuggestion3, onvalue='locked', offvalue='unlocked').pack()
     suggestedColorFrame6.pack()
     ArrayOfAllFrames.append(suggestedColorFrame6)
     ArrayOfAllLockingVariables.append(LockingVariableSuggestion3)
     ArrayOfAllCanvas.append(suggestedColorCanvas3)
+    ArrayOfAllColors.append(hls2hex(b[2]))
 
         #return all three frames here so we can clear it in the future
     
@@ -263,18 +284,45 @@ def choose_color():
 #What if instead I had an array that held the locking variables, that way we check the array and then delete the corresponding
 #Frame in the ArrayOfAllFrames.
 
+ArrayOfSelectedColors = []
 
 def showShadesAndTints():
-   pass
-  #for x in ArrayOfAllCanvas:
-    #x.config(bg = "green")
-    #LockingVariableSuggestion3 = StringVar()
-    #LockingVariableSuggestion3.set( "unlocked" )
-    #suggestedColorLabel5 = Label(suggestedColorFrame6,text="Suggested Color #3:").pack()
-    #suggestedColorCanvas3 = Canvas(suggestedColorFrame6,bg="white", width=1000, height=20).pack()
-    #suggestedColorLabel6 = Label(suggestedColorFrame6,text="white").pack()
-    #check = Checkbutton(suggestedColorFrame6, text='Lock Color', variable=LockingVariableSuggestion3, onvalue='locked', offvalue='unlocked').pack()
-    #suggestedColorFrame6.pack()
+  for index, x in enumerate(ArrayOfAllLockingVariables):
+    if(x.get() == "locked"):
+      ArrayOfSelectedColors.append(index)
+
+  for index in ArrayOfSelectedColors:
+    print(len(ArrayOfAllColors))
+    color = ArrayOfAllColors[index]
+    HLSColor = hex2hls(color)
+    b = tintShade(HLSColor, 2)
+
+    for x in range(4):
+      LockingVariableColorChoice = StringVar()
+      LockingVariableColorChoice.set( "unlocked" )
+      FrameOrTint = Frame()
+      FrameOrTintLabel = Label(FrameOrTint,text="Tint or Shade").pack()
+      FrameOrTintCanvas = Canvas(FrameOrTint)
+      FrameOrTintCanvas.config(bg=hls2hex(b[x]), width=1000, height=20)
+      FrameOrTintCanvas.pack()
+      FrameOrTintLabel2 = Label(FrameOrTint,text=str(hls2hex(b[x]))).pack()
+      check = Checkbutton(FrameOrTint, text='Lock Color', variable=LockingVariableColorChoice, onvalue='locked', offvalue='unlocked').pack()
+      FrameOrTint.pack()
+      ArrayOfAllFrames.append(FrameOrTint)
+      ArrayOfAllLockingVariables.append(LockingVariableColorChoice)
+      ArrayOfAllCanvas.append(FrameOrTintCanvas)
+      ArrayOfAllColors.append(hls2hex(b[x]))
+  
+  ArrayOfSelectedColors.clear()
+
+    
+
+
+def updateColorsByTheme():
+  pass
+  #We can use this code to change existing canvas widgets to be different codes 
+  #for index, x in enumerate(ArrayOfAllCanvas):
+    #ArrayOfAllCanvas[index].configure(bg = "green")
 
 
 ItemsToBeDeleted = []
@@ -295,33 +343,14 @@ def clearFrame():
        for widget in ArrayOfAllFrames[index].winfo_children():
           widget.destroy()
           ArrayOfAllFrames[index].pack_forget()
-
-    #for x in ArrayOfAllFrames:
-      #for widget in x.winfo_children():
-        #for i, subwidget in enumerate(widget.winfo_children()):
-        #if isinstance(widget, tk.OptionMenu):
-          #print("We got here")
-          #print(widget.getvar("LockingVariableSuggestion3"))
-          #print(widget.getvar())
-          #if(widget.state() == "Unlocked"):
-            #print(True)
-        #widget.destroy()
-      #x.pack_forget()
-
-    #for i in range(len(ArrayOfAllFrames)):
-      #del ArrayOfAllFrames[i]
-    #print(len(ArrayOfAllFrames))
     
-    # this will clear frame and frame will be empty
-    # if you want to hide the empty panel then
-    #suggestedColorFrame1.pack_forget()
+    for index in reversed(ItemsToBeDeleted):
+       del ArrayOfAllFrames[index]
+       del ArrayOfAllLockingVariables[index]
+       del ArrayOfAllCanvas[index]
+       del ArrayOfAllColors[index]
 
-
-#def updateThemeOrSchema():
-#  #suggestedColorLabel1.pack_forget()
-#  suggestedColorFrame1.pack_forget()
-#  #suggestedColorLabel2.pack_forget() 
-#  print(theme.get())
+    ItemsToBeDeleted.clear()
 
 # Create label
 selectAColorlabel = Label(root, text="Pick a color by clicking on the button below:").pack()
