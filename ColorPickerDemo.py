@@ -1,10 +1,27 @@
 from tkinter import *
-from tkinter import colorchooser
+from tkinter import colorchooser, ttk
 from webcolors import rgb_to_name
 
 import tkinter as tk
 
 import colorsys
+def theme_popup():
+   top= Toplevel(root)
+   top.geometry("750x250")
+   top.title("Theme Help!")
+   Label(top, text= "Theme Help!", font=('Mistral 18 bold')).place(x=150,y=80)
+
+def schema_popup():
+   top= Toplevel(root)
+   top.geometry("750x250")
+   top.title("Schema Help!")
+   Label(top, text= "Schema Help!", font=('Mistral 18 bold')).place(x=150,y=80)
+
+def tns_popup():
+   top= Toplevel(root)
+   top.geometry("750x250")
+   top.title("Tints & Shades Help!")
+   Label(top, text= "Tints & Shades Help!", font=('Mistral 18 bold')).place(x=150,y=80)
 
 def hls2hex(initHLS):
     rgb = colorsys.hls_to_rgb(initHLS[0],initHLS[1],initHLS[2])
@@ -330,6 +347,9 @@ themeFrame = Frame(root).pack()
 drop = OptionMenu( root , theme , *options )
 drop.pack()
 
+#help informative window for schema
+ttk.Button(root, text= "?: theme", command= theme_popup).pack()
+
 options2 = [
     "complimentary",
     "triadic",
@@ -345,7 +365,13 @@ schema.set( "complimentary" )
 drop = OptionMenu( root , schema , *options2 )
 drop.pack()
 
+#help informative window for schema
+ttk.Button(root, text= "?: schema", command= schema_popup).pack()
+
 button = Button(root , text = "Generate Shades & Tints" , command = showShadesAndTints).pack()
+#help informative window for tns
+ttk.Button(root, text= "?: T&S", command= schema_popup).pack()
+
 
 button = Button(root , text = "Remove Unlocked Colors" , command = clearFrame).pack()
 
