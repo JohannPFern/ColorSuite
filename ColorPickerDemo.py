@@ -118,7 +118,7 @@ def schemaProvider(initHLS, schema, theme):
 
 def tintShade(initHLS, numColors):
   shift = 0.1
-  pallet = []
+  pallet = [initHLS]
   for x in range(numColors):
     #tint: shift to warm, decrease sat, increase light
     if initHLS[0] >= (25/360) and initHLS[0] <= (205/360):
@@ -161,7 +161,6 @@ def choose_color():
   global schema
  
   chosenColorHLS = hex2hls(color_code[1])
-  print(color_code[1])
   b = schemaProvider((chosenColorHLS), schema.get(),theme.get())
 
   LockingVariableColorChoice = StringVar()
@@ -292,12 +291,11 @@ def showShadesAndTints():
       ArrayOfSelectedColors.append(index)
 
   for index in ArrayOfSelectedColors:
-    print(len(ArrayOfAllColors))
     color = ArrayOfAllColors[index]
     HLSColor = hex2hls(color)
     b = tintShade(HLSColor, 2)
 
-    for x in range(4):
+    for x in range(5):
       LockingVariableColorChoice = StringVar()
       LockingVariableColorChoice.set( "unlocked" )
       FrameOrTint = Frame()
