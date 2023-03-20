@@ -5,23 +5,67 @@ from webcolors import rgb_to_name
 import tkinter as tk
 
 import colorsys
+def quickInstructions_popup():
+  top= Toplevel(root)
+  top.geometry("750x250")
+  top.title("Quick Guide")
+  quickGuideTextContent1 = "Quick Guide\n"
+  text1= Label(top, text= quickGuideTextContent1 , font=('comic12'),justify=LEFT) #, bg="green", fg="black")
+  text1.pack(anchor=tk.W, side=TOP)
+
 def theme_popup():
-   top= Toplevel(root)
-   top.geometry("750x250")
-   top.title("Theme Help!")
-   Label(top, text= "Theme Help!", font=('Mistral 18 bold')).place(x=150,y=80)
+  top = Toplevel(root)
+  top.geometry("750x450")
+  top.title("Theme Help!")
+  themeHelpTextContent1 = "Theme Help!\n"
+  text1= Label(top, text= themeHelpTextContent1, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text1.pack(anchor=tk.W, side=TOP)
 
+  themeHelpTextContent2 = "There are a list of given keywords that are \
+descriptive to the theme that the tool can generate for the user.\n It is not necessary to \
+choose a theme. However, choosing a theme adds a constraint to the color generative \nprocess \
+and will affect the bounds of colors that will be generated. Here is a short description of \
+each of the \nthemes that are offered by the Color Suite Tool.\n\
+"
+  text2= Label(top, text= themeHelpTextContent2, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text2.pack(anchor=tk.W, side=TOP)
+
+  themeHelpTextContent3 = "- Pastel theme implements colors that have just enough white mixed into it to look \
+pale and soft while \nmaintaining its color. This theme outputs colors of low saturation and brightness.\n\
+- Pop theme implements colors that are meant to catch the eye by being bright and very vivid/vibrant.\n \
+This is done so by focusing on colors that are higher in saturation and brightness.\n\
+- Noir theme implements colors that are more muted and darker. Inspired by the chiaroscuro \
+lighting\n of renaissance art and German Expressionism, these colors express emotions of moodiness and brooding.\n\
+The tool achieves this palette by lowering both saturation and lightness.\n\
+- Cyberpunk theme implements colors that are rich in saturation but low in brightness.\
+"
+  text3= Label(top, text= themeHelpTextContent3, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text3.pack(anchor=tk.W, side=TOP)
+
+  
 def schema_popup():
-   top= Toplevel(root)
-   top.geometry("750x250")
-   top.title("Schema Help!")
-   Label(top, text= "Schema Help!", font=('Mistral 18 bold')).place(x=150,y=80)
+  top= Toplevel(root)
+  top.geometry("750x350")
+  top.title("Schema Help!")
+  schemaHelpTextContent1 = "Schema Help!\n"
+  text1= Label(top, text= schemaHelpTextContent1, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text1.pack(anchor=tk.W, side=TOP)
 
-def tns_popup():
-   top= Toplevel(root)
-   top.geometry("750x250")
-   top.title("Tints & Shades Help!")
-   Label(top, text= "Tints & Shades Help!", font=('Mistral 18 bold')).place(x=150,y=80)
+  schemaHelpTextContent2 = "\n\
+"
+  text2= Label(top, text= schemaHelpTextContent2, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text2.pack(anchor=tk.W, side=TOP)
+
+  schemaHelpTextContent3 = "- Complimentary - Two colors, located 180 degrees opposite of each other on a color wheel.\n\
+- Analogous - Three colors, located sequentially on a color wheel. \n\
+- Split-Complementary -  three colors, with one on one side of a color wheel and two located \n\
+flanking the compliment, as if analogous.\n\
+- Triadic - Three colors, located equidistant from each other on the color wheel.\n\
+- Tetradic - Four colors, located equidistant from each other on the color wheel.\n\
+"
+  text3= Label(top, text= schemaHelpTextContent3, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text3.pack(anchor=tk.W, side=TOP)
+
 
 def hls2hex(initHLS):
     rgb = colorsys.hls_to_rgb(initHLS[0],initHLS[1],initHLS[2])
