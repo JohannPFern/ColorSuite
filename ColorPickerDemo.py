@@ -5,20 +5,20 @@ from webcolors import rgb_to_name
 import tkinter as tk
 
 import colorsys
-def quickInstructions_popup():
-  top= Toplevel(root)
-  top.geometry("750x250")
-  top.title("Quick Guide")
-  quickGuideTextContent1 = "Quick Guide\n"
-  text1= Label(top, text= quickGuideTextContent1 , font=('comic12'),justify=LEFT) #, bg="green", fg="black")
-  text1.pack(anchor=tk.W, side=TOP)
+# def quickInstructions_popup():
+#   top= Toplevel(root)
+#   top.geometry("750x250")
+#   top.title("Quick Guide")
+#   quickGuideTextContent1 = "Quick Guide\n"
+#   text1= Label(top, text= quickGuideTextContent1 , font=('comic12'),justify=LEFT) #, bg="green", fg="black")
+#   text1.pack(anchor=tk.W, side=TOP)
 
 def theme_popup():
   top = Toplevel(root)
-  top.geometry("750x450")
+  top.geometry("750x350")
   top.title("Theme Help!")
   themeHelpTextContent1 = "Theme Help!\n"
-  text1= Label(top, text= themeHelpTextContent1, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text1= Label(top, text= themeHelpTextContent1, font=('comic 12 bold'),justify=LEFT) #, bg="green", fg="black")
   text1.pack(anchor=tk.W, side=TOP)
 
   themeHelpTextContent2 = "There are a list of given keywords that are \
@@ -42,31 +42,57 @@ The tool achieves this palette by lowering both saturation and lightness.\n\
   text3= Label(top, text= themeHelpTextContent3, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
   text3.pack(anchor=tk.W, side=TOP)
 
-  
 def schema_popup():
   top= Toplevel(root)
-  top.geometry("750x350")
+  top.geometry("750x300")
   top.title("Schema Help!")
   schemaHelpTextContent1 = "Schema Help!\n"
-  text1= Label(top, text= schemaHelpTextContent1, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text1= Label(top, text= schemaHelpTextContent1, font=('comic 12 bold'),justify=LEFT) #, bg="green", fg="black")
   text1.pack(anchor=tk.W, side=TOP)
 
-  schemaHelpTextContent2 = "\n\
-"
+  schemaHelpTextContent2 = "\
+Color schemes exist to provide to identify harmonious relationships between colors.The Color Suite Tool \n\
+implements geometric calculation with respect to the color wheel to identify the desired colors based on the\n\
+selected schema. There exist 5 different schemas that the user can choose from, of which their brief \n\
+descriptions are listed below.\n"
   text2= Label(top, text= schemaHelpTextContent2, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
   text2.pack(anchor=tk.W, side=TOP)
 
   schemaHelpTextContent3 = "- Complimentary - Two colors, located 180 degrees opposite of each other on a color wheel.\n\
+- Triadic - Three colors, located equidistant from each other on the color wheel.\n\
 - Analogous - Three colors, located sequentially on a color wheel. \n\
 - Split-Complementary -  three colors, with one on one side of a color wheel and two located \n\
 flanking the compliment, as if analogous.\n\
-- Triadic - Three colors, located equidistant from each other on the color wheel.\n\
 - Tetradic - Four colors, located equidistant from each other on the color wheel.\n\
 "
   text3= Label(top, text= schemaHelpTextContent3, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
   text3.pack(anchor=tk.W, side=TOP)
 
+def tns_popup():
+  top= Toplevel(root)
+  top.geometry("750x300")
+  top.title("Tints & Shades Help!")
+  tnsHelpTextContent1 = "Tints & Shades Help!\n"
+  text1= Label(top, text= tnsHelpTextContent1, font=('comic 12 bold'),justify=LEFT) #, bg="green", fg="black")
+  text1.pack(anchor=tk.W, side=TOP)
 
+  tnsHelpTextContent2 = "\
+Tints refer to lighter versions of a color while shades refer to darker versions. From the color that the user \n\
+originally provides, they can receive different tints and shades as to explore similar colors. Tints are shifted to \n\
+become warmer in hue, approaching colors like red, orange, and yellow; while shades are shifted to become \n\
+colder in hue, approaching purple, blue, and green.\n"
+  text2= Label(top, text= tnsHelpTextContent2, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text2.pack(anchor=tk.W, side=TOP)
+
+  tnsHelpTextContent3 = "\
+How to use Tints Shades.\n\
+After the user has generated colors, they should lock the colors for which they would like to generate tints \n\
+and shades for. For each color that they lock, they can expect different \"tints and shades\" for each color \n\
+that is locked. If you are unable to see all of the tints and shade outputs, please try removing the colors \n\
+that are not locked and locking one color at a time."
+  text3= Label(top, text= tnsHelpTextContent3, font=('comic 12'),justify=LEFT) #, bg="green", fg="black")
+  text3.pack(anchor=tk.W, side=TOP)
+  
 def hls2hex(initHLS):
     rgb = colorsys.hls_to_rgb(initHLS[0],initHLS[1],initHLS[2])
     rgb = [round(y*255) for y in rgb]
@@ -395,7 +421,7 @@ def clearFrame():
     ItemsToBeDeleted.clear()
 
 # Create label
-selectAColorlabel = Label(root, text="Pick a color by clicking on the first button below:").pack()
+selectAColorlabel = Label(root, text="Pick a theme and schema first before you choose your color!").pack()
 #label.grid(row=0)
 
 #This code is experimental:
@@ -441,7 +467,7 @@ ttk.Button(root, text= "?: schema", command= schema_popup).pack()
 
 button = Button(root , text = "Generate Shades & Tints" , command = showShadesAndTints).pack()
 #help informative window for tns
-ttk.Button(root, text= "?: T&S", command= schema_popup).pack()
+ttk.Button(root, text= "?: T&S", command= tns_popup).pack()
 
 
 button = Button(root , text = "Remove Unlocked Colors" , command = clearFrame).pack()
