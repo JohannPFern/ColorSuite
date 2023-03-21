@@ -395,7 +395,7 @@ def clearFrame():
     ItemsToBeDeleted.clear()
 
 # Create label
-selectAColorlabel = Label(root, text="Pick a color by clicking on the button below:").pack()
+selectAColorlabel = Label(root, text="Pick a color by clicking on the first button below:").pack()
 #label.grid(row=0)
 
 #This code is experimental:
