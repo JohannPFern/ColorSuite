@@ -162,7 +162,7 @@ def schemaProvider(initHLS, schema, theme):
 
 def tintShade(initHLS, numColors):
   shift = 0.1
-  pallet = [initHLS]
+  pallet = []
   for x in range(numColors):
     #tint: shift to warm, decrease sat, increase light
     if initHLS[0] >= (25/360) and initHLS[0] <= (205/360):
@@ -339,11 +339,17 @@ def showShadesAndTints():
     HLSColor = hex2hls(color)
     b = tintShade(HLSColor, 2)
 
-    for x in range(5):
+    for x in range(4):
       LockingVariableColorChoice = StringVar()
       LockingVariableColorChoice.set( "unlocked" )
       FrameOrTint = Frame()
-      FrameOrTintLabel = Label(FrameOrTint,text="Tint or Shade").pack()
+      if(x == 0 or x == 2):
+        FrameOrTintLabel = Label(FrameOrTint,text="Tint").pack()
+
+      if(x == 1 or x == 3):
+        FrameOrTintLabel = Label(FrameOrTint,text="Shade").pack()
+
+      #FrameOrTintLabel = Label(FrameOrTint,text="Tint or Shade").pack()
       FrameOrTintCanvas = Canvas(FrameOrTint)
       FrameOrTintCanvas.config(bg=hls2hex(b[x]), width=1000, height=20)
       FrameOrTintCanvas.pack()
