@@ -198,7 +198,7 @@ def tintShade(initHLS, numColors):
     newL_t = initHLS[1] * (1.1+ shift*(x))
     newS_t = initHLS[2] * 0.9
 
-    pallet = [(newH_t, newL_t, newS_t)] + pallet
+    pallet = pallet + [(newH_t, newL_t, newS_t)]
 
     #shade: shift to cool, decrease sat, decrease light
     if initHLS[0] >= (25/360) and initHLS[0] <= (205/360):
